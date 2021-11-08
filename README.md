@@ -1,5 +1,14 @@
 # Getting Started with Create React App
 
+# Services
+
+```javascript
+getCrimesByYears()
+  .then((res) => res.json())
+  .then((json) => console.log(json))
+  .catch((err) => console.error(err));
+```
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

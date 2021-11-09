@@ -90,5 +90,23 @@
   text-decoration: none;
   list-style: none;
   flex-direction: column;
-  gap: 1em;
+  gap: 1.5em;
+}
+
+.ul__item__icon {
+  width: 2em;
+  height: 2em;
+}
+
+.leftNavItems {
+  cursor: pointer;
+}
+
+.leftPopup {
+  background-color: #151220;
+  width: 65%;
+  height: 75%;
+  margin: 0 auto;
+  border-radius: 40px;
+  cursor: pointer;
 }

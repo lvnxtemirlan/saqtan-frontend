@@ -110,3 +110,21 @@
   border-radius: 40px;
   cursor: pointer;
 }
+
+.searchInput {
+  width: 20em;
+  height: 3em;
+  border: 1px solid #f6f6f6;
+  border-radius: 30px;
+  background-color: #f6f6f6;
+}
+
+#sbmBtn {
+  border: 1px solid #f6f6f6;
+  border-radius: 50%;
+  background-color: #ffefe7;
+}
+
+input:focus {
+  outline: none;
+}

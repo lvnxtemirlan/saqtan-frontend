@@ -1,7 +1,8 @@
 import { faMap, faChartBar } from "@fortawesome/free-regular-svg-icons";
-import { faHistory } from "@fortawesome/free-solid-svg-icons";
+import { faHistory, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
+import { ReactDOM } from 'react';
 
 const BackPage = () => {
     return (
@@ -54,8 +55,13 @@ const Blank = () => {
                 </div>
             </div>
             <div className="blankFrames__item_2" style={{ background: "#ffffff" }}>
-                <div className="navbar__item_1">
-                    
+                <div className="navbar__item_1" style={{ display: "grid", justifyItems: "center", alignItems: "center" }}>
+                    <div className="searchBar" style={{ display: "grid", gridTemplateColumns: "7fr 1fr", gridGap: ".5em" }}>
+                        <input type="text" className="searchInput" placeholder="Поиск..." style={{ padding: "0 2em" }} />
+                        <button id="sbmBtn">
+                            <FontAwesomeIcon icon={faArrowRight} />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

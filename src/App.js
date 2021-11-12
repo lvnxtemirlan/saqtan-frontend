@@ -1,12 +1,19 @@
 import './App.css';
-import { BackPage, Blank } from './components/Blank';
-import NavBar from './components/Navbar';
+import { Blank } from './components/Blank';
+import { Route, Routes } from 'react-router-dom';
+
+import { Map } from './components/Map';
+import History from './components/History';
+
 
 function App() {
   return (
     <div className="App">
-      <BackPage />
-      <Blank />
+      <Routes>
+        <Route path="/" element={<Blank />} />
+        <Route path="/map" element={<Map />} />
+        <Route path="/history" element={<History />} />
+      </Routes>
     </div>
   );
 }

@@ -22,6 +22,15 @@ class APIService {
             method: "GET",
         });
     }
+
+    async post(path, body=null) {
+        return await fetch(`${this.HOST}${path}`, {
+            method: "POST",
+            body: body ? JSON.stringify(body) : "{}",
+            headers: {"Content-Type": "application/json"}
+        });
+        
+    }
 }
 
 export default APIService;

@@ -3,20 +3,20 @@ import APIService from "./api";
 
 const API_SERVICE = new APIService();
 
-const getCrimes = () => {
-    return API_SERVICE.get("/crimes/list/");
+const getCrimes = (pageSize=6) => {
+    return API_SERVICE.get("/crimes/list/", {page_size: pageSize});
 }
 
 const getCrimesByYears = () => {
     return API_SERVICE.get("/crimes/mixin/", {type: "AMOUNT_BY_YEARS"});
 }
 
-const getCrimesByYearsPeriods = () => {
-    return API_SERVICE.get("/crimes/mixin/", {type: "AMOUNT_BY_YEARS_PERIODS"});
+const getCrimesByYearsPeriods = (year=null) => {
+    return API_SERVICE.get("/crimes/mixin/", {type: "AMOUNT_BY_YEARS_PERIODS", year: year});
 }
 
-const getCrimesByCities = () => {
-    return API_SERVICE.get("/crimes/mixin/", {type: "AMOUNT_BY_CITIES"});
+const getCrimesByCities = year => {
+    return API_SERVICE.get("/crimes/mixin/", {type: "AMOUNT_BY_CITIES", year: year});
 }
 
 const getCrimesByYearsCities = () => {
@@ -34,9 +34,9 @@ const searchForEvents = (city, geometry, object_id=null) => {
     return API_SERVICE.post("/crimes/search/", {city: city, geometry: geometry});
 }
 
-const getEvents = (page, pageLink=null) => {
+const getEvents = (page, pageLink=null, pageSize=6) => {
     if (!pageLink) {
-        return API_SERVICE.get("/crimes/list/", {page_size: 6, page: page});
+        return API_SERVICE.get("/crimes/list/", {page_size: pageSize, page: page});
     } else {
         return API_SERVICE.get(pageLink);
     }

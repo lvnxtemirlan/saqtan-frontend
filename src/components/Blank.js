@@ -4,6 +4,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { Fragment } from 'react';
 import { Link } from "react-router-dom";
+import { useState } from "react";
+
+import LineChart from "./Chart";
+import { getCrimesByYears, getCrimesByCities, getCrimes, getCrimesByYearsPeriods } from "../services/crime";
+import { useEffect } from "react";
+import Loader from "react-loader-spinner";
+
+import IconSvg from "./Icon";
 
 
 const BackPage = () => {
@@ -15,109 +23,240 @@ const BackPage = () => {
     )
 }
 
-const IconSvg = (props) => {
+const dateParser = date => {
+    var month = {
+        1: "Январь",
+        2: "Февраль",
+        3: "Март",
+        4: "Апрель",
+        5: "Май",
+        6: "Июнь",
+        7: "Июль",
+        8: "Август",
+        9: "Сентябрь",
+        10: "Октябрь",
+        11: "Ноябрь",
+        12: "Декабрь",
+    };
 
-    if (props.svgName == "green_worm_25") {
-        return (
-            <svg width="80" height="20" viewBox="0 0 411 83" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 67.7169C40.8715 67.7169 66.7429 67.7169 92.6144 67.7169C110.459 67.7169 129.502 68.7464 147.151 66.8789C163.337 65.1663 178.203 59.865 191.857 54.7877C216.45 45.6431 241.991 24.577 274.956 28.3905C284.544 29.4996 293.221 31.6749 302.794 32.7003C314.371 33.9403 327.386 33.4703 339.118 33.239C362.894 32.7701 374.604 19.9325 395 16" stroke="#A7C9B0" stroke-width="30" stroke-linecap="round" />
-            </svg>
-        )
+    var dateObj = new Date(date);
+    var minutes = dateObj.getMinutes().toString();
+    if (minutes.length == 1) {
+        minutes = "0" + minutes;
     }
 
-    if (props.svgName == "green_worm_50") {
-        return (
-            <svg width="65" height="70" viewBox="0 0 411 83" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 226C32.1852 226 49.3704 226 66.5556 226C80.9818 226 94.7375 226.393 108.889 223.222C132.228 217.993 157.377 215.785 179.667 206.778C200.937 198.182 218.564 189.117 234 171.778C251.248 152.403 260.309 130.242 269 106.222C277.17 83.6444 290.878 61.6343 309 45.7778C320.106 36.0599 332.848 29.6533 346.778 24.7778C366.904 17.7335 386.7 15 408 15" stroke="#A7C9B0" stroke-width="30" stroke-linecap="round" />
-            </svg>
-        )
-    }
-
-    if (props.svgName == "green_worm_75") {
-        return (
-            <svg width="60" height="90" viewBox="0 0 411 83" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 309.756C26.1758 309.756 37.6226 310.398 48.7697 309.599C62.5775 308.611 73.8753 302.884 86.6678 298.787C97.5781 295.293 109.297 293.869 119.777 289.228C133.29 283.244 146.727 276.686 159.161 268.857C186.467 251.664 206.576 225.906 224.884 200.535C238.683 181.414 246.06 158.747 257.993 138.559C275.823 108.4 292.2 73.5122 323.304 53.1569C335.767 45.0004 349.01 38.3462 362.853 32.5506C371.493 28.9336 381.405 25.4152 389.192 20.3279C390.73 19.3228 397.633 15 396.953 15" stroke="#A7C9B0" stroke-width="30" stroke-linecap="round" />
-            </svg>
-        )
-    }
-
-    if (props.svgName == "green_worm_100") {
-        return (
-            <svg width="60" height="98" viewBox="0 0 411 83" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 361C27.0318 361 39.0636 361 51.0954 361C81.5047 361 107.145 357.024 134.731 346.078C202.78 319.078 261.532 271.268 302.802 219.994C337.974 176.297 367.181 124.92 381.396 73.8395C386.606 55.116 391 34.3314 391 15" stroke="#A7C9B0" stroke-width="30" stroke-linecap="round" />
-            </svg>
-        )
-    }
-
-    if (props.svgName == "blue_worm_25") {
-        return (
-            <svg width="80" height="20" viewBox="0 0 411 83" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 67.7169C40.8715 67.7169 66.7429 67.7169 92.6144 67.7169C110.459 67.7169 129.502 68.7464 147.151 66.8789C163.337 65.1663 178.203 59.865 191.857 54.7877C216.45 45.6431 241.991 24.577 274.956 28.3905C284.544 29.4996 293.221 31.6749 302.794 32.7003C314.371 33.9403 327.386 33.4703 339.118 33.239C362.894 32.7701 374.604 19.9325 395 16" stroke="#BEC1DA" stroke-width="30" stroke-linecap="round" />
-            </svg>
-        )
-    }
-
-    if (props.svgName == "blue_worm_50") {
-        return (
-            <svg width="65" height="70" viewBox="0 0 411 83" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 226C32.1852 226 49.3704 226 66.5556 226C80.9818 226 94.7375 226.393 108.889 223.222C132.228 217.993 157.377 215.785 179.667 206.778C200.937 198.182 218.564 189.117 234 171.778C251.248 152.403 260.309 130.242 269 106.222C277.17 83.6444 290.878 61.6343 309 45.7778C320.106 36.0599 332.848 29.6533 346.778 24.7778C366.904 17.7335 386.7 15 408 15" stroke="#BEC1DA" stroke-width="30" stroke-linecap="round" />
-            </svg>
-        )
-    }
-
-    if (props.svgName == "blue_worm_75") {
-        return (
-            <svg width="60" height="90" viewBox="0 0 411 83" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 309.756C26.1758 309.756 37.6226 310.398 48.7697 309.599C62.5775 308.611 73.8753 302.884 86.6678 298.787C97.5781 295.293 109.297 293.869 119.777 289.228C133.29 283.244 146.727 276.686 159.161 268.857C186.467 251.664 206.576 225.906 224.884 200.535C238.683 181.414 246.06 158.747 257.993 138.559C275.823 108.4 292.2 73.5122 323.304 53.1569C335.767 45.0004 349.01 38.3462 362.853 32.5506C371.493 28.9336 381.405 25.4152 389.192 20.3279C390.73 19.3228 397.633 15 396.953 15" stroke="#BEC1DA" stroke-width="30" stroke-linecap="round" />
-            </svg>
-        )
-    }
-
-    if (props.svgName == "blue_worm_100") {
-        return (
-            <svg width="60" height="98" viewBox="0 0 411 83" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 361C27.0318 361 39.0636 361 51.0954 361C81.5047 361 107.145 357.024 134.731 346.078C202.78 319.078 261.532 271.268 302.802 219.994C337.974 176.297 367.181 124.92 381.396 73.8395C386.606 55.116 391 34.3314 391 15" stroke="#BEC1DA" stroke-width="30" stroke-linecap="round" />
-            </svg>
-        )
-    }
-
-    if (props.svgName == "yellow_worm_25") {
-        return (
-            <svg width="80" height="20" viewBox="0 0 411 83" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 67.7169C40.8715 67.7169 66.7429 67.7169 92.6144 67.7169C110.459 67.7169 129.502 68.7464 147.151 66.8789C163.337 65.1663 178.203 59.865 191.857 54.7877C216.45 45.6431 241.991 24.577 274.956 28.3905C284.544 29.4996 293.221 31.6749 302.794 32.7003C314.371 33.9403 327.386 33.4703 339.118 33.239C362.894 32.7701 374.604 19.9325 395 16" stroke="#D3B3A2" stroke-width="30" stroke-linecap="round" />
-            </svg>
-        )
-    }
-
-    if (props.svgName == "yellow_worm_50") {
-        return (
-            <svg width="65" height="70" viewBox="0 0 411 83" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 226C32.1852 226 49.3704 226 66.5556 226C80.9818 226 94.7375 226.393 108.889 223.222C132.228 217.993 157.377 215.785 179.667 206.778C200.937 198.182 218.564 189.117 234 171.778C251.248 152.403 260.309 130.242 269 106.222C277.17 83.6444 290.878 61.6343 309 45.7778C320.106 36.0599 332.848 29.6533 346.778 24.7778C366.904 17.7335 386.7 15 408 15" stroke="#D3B3A2" stroke-width="30" stroke-linecap="round" />
-            </svg>
-        )
-    }
-
-    if (props.svgName == "yellow_worm_75") {
-        return (
-            <svg width="60" height="90" viewBox="0 0 411 83" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 309.756C26.1758 309.756 37.6226 310.398 48.7697 309.599C62.5775 308.611 73.8753 302.884 86.6678 298.787C97.5781 295.293 109.297 293.869 119.777 289.228C133.29 283.244 146.727 276.686 159.161 268.857C186.467 251.664 206.576 225.906 224.884 200.535C238.683 181.414 246.06 158.747 257.993 138.559C275.823 108.4 292.2 73.5122 323.304 53.1569C335.767 45.0004 349.01 38.3462 362.853 32.5506C371.493 28.9336 381.405 25.4152 389.192 20.3279C390.73 19.3228 397.633 15 396.953 15" stroke="#D3B3A2" stroke-width="30" stroke-linecap="round" />
-            </svg>
-        )
-    }
-
-    if (props.svgName == "yellow_worm_100") {
-        return (
-            <svg width="60" height="98" viewBox="0 0 411 83" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M19 361C31.0318 361 43.0636 361 55.0954 361C85.5047 361 111.145 357.024 138.731 346.078C206.78 319.078 265.532 271.268 306.802 219.994C341.974 176.297 371.181 124.92 385.396 73.8396C390.606 55.116 395 34.3314 395 15" stroke="#D3B3A2" stroke-width="30" stroke-linecap="round" />
-            </svg>
-        )
-    }
-
+    return `${dateObj.getDay()} ${month[dateObj.getMonth()]} 
+            ${dateObj.getFullYear()} года 
+            ${dateObj.getHours()}:${minutes}`;
 }
 
-export default IconSvg;
+const StatisticBlock = (props) => {
+    var [lastThreeCrimes, setLastThreeCrimes] = useState([]);
+    var [periodCrimes, setPeriodCrimes] = useState({});
+    var years = [0, 0, 0, 0, 0].map((_, index) => props.defaultYear - 4 + index);
+
+    useEffect(() => {
+        getCrimes(3)
+        .then(res => res.json())
+        .then(json => setLastThreeCrimes(json.results))
+        .catch(err => console.error(err));
+
+        getCrimesByYearsPeriods(props.selectVal != null ? props.selectVal : props.defaultYear)
+        .then(res => res.json())
+        .then(json => setPeriodCrimes(json))
+        .catch(err => console.error(err));
+    }, []);
+
+    return (
+        <div style={{
+            display: "grid",
+            gridTemplateColumns: "2.2fr 1fr",
+            width: "100%",
+            height: "100%"
+        }}>
+            <div style={{
+                display: "grid",
+                gridTemplateRows: "0.2fr .7fr .1fr .7fr",
+                width: "100%",
+                height: "100%"
+            }}>
+                <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "1.5fr 1fr",
+                }}>
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        marginLeft: "2.5em",
+                    }}>
+                        <span
+                            style={{
+                                fontSize: "20px",
+                                fontWeight: "800"
+                            }}>
+                            Обзор преступлений</span>
+                        <span style={{
+                            fontSize: "14px",
+                            fontWeight: "400"
+                        }}>Обновления значений</span>
+                    </div>
+                    <div>
+                        <select onChange={event => props.onChangeSelect(event)} style={{ border: "none", width: "8em", fontSize: "1.3em", textAlign: "center", borderRadius: "10px", padding: ".2em", background: "#f6f6f6" }}>
+                            {
+                                years.map(e => {
+                                    if (props.selectVal === null) {
+                                        if (props.defaultYear == e) return <option value={e} selected>{e}</option>;
+                                        else return <option value={e}>{e}</option>;
+                                    } else if (props.selectVal !== null) {
+                                        if (props.selectVal == e) return <option value={e} selected>{e}</option>;
+                                        else return <option value={e}>{e}</option>
+                                    }
+                                })
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div style={{
+                    marginLeft: "2.5em",
+                    paddingBottom: "1em",
+                    height: "14em"
+                }}>
+                    <LineChart data={periodCrimes}></LineChart>
+                </div>
+                <div style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    marginLeft: "2.5em",
+                }}>
+                    <span
+                        style={{
+                            justifyContent: "",
+                            fontSize: "20px",
+                            fontWeight: "800"
+                        }}>
+                        Последние события</span>
+                </div>
+                <div style={{
+                    display: "grid",
+                    gridTemplateRows: "1fr 1fr 1fr",
+                    width: "100%",
+                    height: "85%",
+                    marginLeft: "1em",
+                    // justifyContent: "center",
+                alignItems: "center",
+                textAlign: "center"
+            }}>
+                {
+                    lastThreeCrimes.map(e => {
+                        return (
+                            <div style={{
+                                display: "grid",
+                                gridTemplateColumns: ".5fr 1.5fr 1fr",
+                                alignItems: "center",
+                            }}>
+                                <div><IconSvg svgName="linear_blue_icon"></IconSvg></div>
+                                <div>{e.crime.description.length > 40 ? `${e.crime.description.slice(0, 40)}...` : e.crime.description}</div>
+                                <div>{dateParser(e.dat_sover_str)}</div>
+                            </div>
+                        )
+                    })
+                }
+            </div>
+        </div>
+        <div style={{
+            justifyContent: "center",
+            alignItems: "center",
+            display: "flex"
+        }}>
+            <div style={{
+                backgroundColor: "#000000",
+                width: "85%",
+                height: "75%",
+                borderRadius: "3em",
+                display: "grid",
+                gridTemplateRows: ".2fr .1fr 1.1fr",
+                alignItems: "center"
+            }}>
+                <div style={{
+                    color: "white",
+                    fontSize: "1.5em",
+                    fontWeight: "bold",
+
+                }}>
+                    Города
+                </div>
+
+                <div style={{
+                    color: "white",
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+
+                }}>
+                    <div>Город</div>
+                    <div>Количество</div>
+                </div>
+                <div style={{
+                    overflowY: "scroll", height: "85%", backgroundColor: "black", marginBottom: "2.5em",
+                    justifyContent: "center",
+                    alignItems: "center"
+                }}>
+                    {
+                        Object.keys(props.cityCrimes).map(e => {
+                            var val = props.cityCrimes[e];
+                            return (
+                                <div className="cityTable">
+                                    <div>{e}</div>
+                                    <div>{val}</div>
+                                </div>
+                            )
+                        })
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    )
+}
 
 const Blank = () => {
+    const yearCrimesBlockColors = ["#EEFCF0", "#EBEEFA", "#FDF0E8"];
+    const [yearCrimes, setYearCrimes] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
+    const [cityCrimes, setCityCrimes] = useState({});
+    const defaultYear = new Date().getFullYear();
+    const [selectVal, setSelectVal] = useState(null);
+    
+    useEffect(() => {
+        getCrimesByYears()
+        .then(res => res.json())
+        .then(json => {
+            setYearCrimes(json);
+        })
+        .then(() => {
+            getCrimesByCities(defaultYear)
+            .then(res => res.json())
+            .then(json => {
+                setCityCrimes(json);
+                setIsLoading(false);
+            });
+        })
+        .catch(err => console.error(err));
+    }, []);
+
+    const onYearChange = (event) => {
+        var target = event.target;
+        setIsLoading(true);
+        getCrimesByCities(target.value)
+        .then(res => res.json())
+        .then(json => {
+            setSelectVal(target.value);
+            setCityCrimes(json);
+            setIsLoading(false);
+        });
+
+    }
+
     return (
         <Fragment>
             <BackPage />
@@ -147,7 +286,6 @@ const Blank = () => {
                                         </Link>
                                     </div>
                                 </li>
-
                             </ul>
                         </div>
                         <div className="navHelpPopup">
@@ -169,24 +307,46 @@ const Blank = () => {
                 <div className="blankFrames__item_2" style={{ background: "#ffffff" }}>
                     <div className="navbar__item_1" style={{ display: "grid", justifyItems: "center", alignItems: "center" }}>
                         <div className="searchBar" style={{ display: "grid", gridTemplateColumns: "7fr 1.5fr", gridGap: ".5em" }}>
-                            <input type="text" className="searchInput" placeholder="Поиск..." style={{ padding: "0 2em" }} />
-                            <button id="sbmBtn">
-                                <FontAwesomeIcon className="prevPage" icon={faArrowRight} />
-                            </button>
+                            
                         </div>
                     </div>
-                    <div style={{ width: "100%", height: "100%", display: "grid", gridTemplateRows: "1fr 3fr" }}>
+                    <div style={{ width: "100%", height: "100%", display: "grid", gridTemplateRows: "1fr 4fr" }}>
+                        { 
+                            isLoading 
+                            ? <Loader
+                                style={{ position: "absolute", bottom: "45%", left: "60%" }}
+                                type="TailSpin"
+                                color="#151220"
+                                height={100}
+                                width={100}
+                                timeout={15000000} 
+                            /> 
+                            : null }
                         <div style={{ display: "flex", justifyContent: "space-evenly", justifyItems: "center", gridGap: 0 }}>
-                            <div style={{ 
-                                background: "#EEFCF0", width: "80%", height: "90%", margin: "1.5em", borderRadius: "30px",
-                                display: "grid", gridTemplateRows: "1.2fr 1.2fr .9fr"
-                            }}>
-                                <img src={require("../assets/img/statis.png")} />
-                            </div>
-                            <div style={{ background: "#EBEEFA", width: "80%", height: "90%", margin: "1.5em", borderRadius: "30px" }}></div>
-                            <div style={{ background: "#FDF0E8", width: "80%", height: "90%", margin: "1.5em", borderRadius: "30px" }}></div>
+                            {
+                                Object.keys(yearCrimes).map((key, index) => {
+                                    var val = yearCrimes[key];
+                                    return (
+                                        <div style={{ 
+                                            background: `${yearCrimesBlockColors[index]}`, width: "70%", height: "90%", margin: "1.5em", borderRadius: "30px",
+                                            display: "grid", alignItems: "center"
+                                        }}>
+                                            <div>
+                                                <div><span style={{ fontWeight: "bold", fontSize: "2em" }}>{key}</span></div>
+                                                <div><br/><span style={{ fontSize: "1.5em" }}>{val}</span> <br />преступлений</div>
+                                            </div>
+                                        </div>
+                                    )
+                                })
+                            }
                         </div>
-                        <div style={{ height: "80%" }}></div>
+                        <div style={{ height: "80%", marginTop: "1.3em" }}>
+                            { !isLoading ? <StatisticBlock 
+                                            cityCrimes={cityCrimes} 
+                                            defaultYear={defaultYear} 
+                                            onChangeSelect={onYearChange} 
+                                            selectVal={selectVal} /> : null }
+                        </div>
                     </div>
                 </div>
             </div>

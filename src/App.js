@@ -1,4 +1,5 @@
 import './App.css';
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import { Blank } from './components/Blank';
 import { Route, Routes } from 'react-router-dom';
 

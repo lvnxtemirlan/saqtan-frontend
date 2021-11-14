@@ -9,6 +9,7 @@ import { getEvents } from "../services/crime";
 import { MyMapComponent } from "./Map";
 import { Link } from "react-router-dom";
 import swal from "sweetalert";
+import Loader from "react-loader-spinner";
 
 
 const googleMapURL =
@@ -48,12 +49,16 @@ const openCrimeOnMap = object_id => {
 const History = () => {
     const [page, setPage] = useState(1);
     const [crimes, setCrimes] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const handleNextPage = event => {
+        setCrimes([]);
+        setIsLoading(true);
         getEvents(page + 1)
         .then(res => res.json())
         .then(json => {
-            setCrimes(json.results)
+            setIsLoading(false);
+            setCrimes(json.results);
             setPage(page + 1);
         })
         .catch(err => console.error(err));
@@ -63,9 +68,12 @@ const History = () => {
         if (page == 1) {
             return 
         }
+        setCrimes([]);
+        setIsLoading(true);
         getEvents(page - 1)
         .then(res => res.json())
         .then(json => {
+            setIsLoading(false);
             setCrimes(json.results)
             setPage(page - 1);
         })
@@ -75,7 +83,10 @@ const History = () => {
     useEffect(() => {
         getEvents(page)
         .then(res => res.json())
-        .then(json => setCrimes(json.results))
+        .then(json => {
+            setCrimes(json.results);
+            setIsLoading(false);
+        })
         .catch(err => console.error(err));
     }, []);
 
@@ -151,10 +162,22 @@ const History = () => {
                         </div>
                     </div>
                     <div style={{ width: "100%", maxHeight: "87%", height: "87%", display: "flex", flexDirection: "column", gap: "1em", marginTop: "2em", alignItems: "center" }}>
+                        { 
+                            isLoading 
+                            ? <Loader
+                                style={{ position: "absolute", bottom: "45%", left: "60%" }}
+                                type="TailSpin"
+                                color="#151220"
+                                height={100}
+                                width={100}
+                                timeout={15000000} 
+                            /> 
+                            : null 
+                        }
                         {
                             crimes.map(e => {
                                 return (
-                                    <div onClick={() => openCrimeOnMap(e.object_id)} style={{ height: "100px", background: "#f6f6f6", width: "95%", borderRadius: "20px", display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
+                                    <div onClick={() => openCrimeOnMap(e.object_id)} style={{ cursor: "pointer", height: "100px", background: "#f6f6f6", width: "95%", borderRadius: "20px", display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
                                         <div>
                                             {e.crime.description} | {e.city.name}
                                         </div>

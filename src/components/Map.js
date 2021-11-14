@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { compose, withProps } from "recompose";
 import { withScriptjs, GoogleMap, Marker, withGoogleMap } from "react-google-maps";
 import swal from 'sweetalert';
+import Loader from "react-loader-spinner";
 
 
 const KEY = "AIzaSyBU-HFRJv4gEA5NTG-ugyXVv2KuV2GtCck";
@@ -59,6 +60,7 @@ const callSweetAlert = (title, msg, date, item) => {
 
 
 const Map = () => {
+    const [isLoading, setIsLoading] = useState(true);
     const [cities, setCities] = useState([]);
     const [positions, setPositions] = useState([{geometry: {'x': 0, 'y': 0}}]);
     let search = window.location.search;
@@ -90,7 +92,10 @@ const Map = () => {
                 var val = json.results[0];
                 searchForEvents(city, val.geometry.location)
                 .then(res => res.json())
-                .then(json => setPositions(json))
+                .then(json => {
+                    setPositions(json);
+                    setIsLoading(false);
+                })
                 .catch(err => console.error(err));
             }
         })
@@ -161,19 +166,30 @@ const Map = () => {
                         </div>
                     </div>
                     <div style={{ width: "100%", height: "100%" }}>
-                    <MyMapComponent 
-                        isMarkerShown 
-                        loadingElement={<div style={{ height: `100%` }} />}
-                        containerElement={<div style={{ height: `50%` }} />}
-                        mapElement={<div style={{ height: `100%` }} />}
-                        googleMapURL={googleMapURL}
-                        positions={positions}
-                        position={
-                            positions.length > 0
-                            ? { 'lat': positions[0]['geometry']['y'], 'lng': positions[0]['geometry']['x'] }
-                            : callSweetAlert("Преступления не найдены", "", "", "")
+                        { 
+                            isLoading 
+                            ? <Loader
+                                style={{ position: "absolute", bottom: "45%", left: "60%" }}
+                                type="TailSpin"
+                                color="#151220"
+                                height={100}
+                                width={100}
+                                timeout={15000000} 
+                            /> 
+                            : null 
                         }
-                    />
+                        <MyMapComponent 
+                            isMarkerShown 
+                            loadingElement={<div style={{ height: `100%` }} />}
+                            containerElement={<div style={{ height: `50%` }} />}
+                            mapElement={<div style={{ height: `100%` }} />}
+                            googleMapURL={googleMapURL}
+                            positions={positions}
+                            position={
+                                positions.length > 0
+                                ? { 'lat': positions[0]['geometry']['y'], 'lng': positions[0]['geometry']['x'] }
+                                : callSweetAlert("Преступления не найдены", "", "", "")
+                        } />
                     </div>
                 </div>
             </div>
